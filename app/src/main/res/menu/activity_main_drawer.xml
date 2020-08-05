@@ -7,8 +7,24 @@
         <menu>
             <item
                 android:id="@+id/nav_home"
-                android:icon="@drawable/ic_menu_camera"
+                android:icon="@drawable/ic_home"
                 android:title="@string/menu_home" />
+        </menu>
+    </item>
+    <item android:title="@string/connectivity">
+        <menu>
+            <item
+                android:id="@+id/nav_bluetooth"
+                android:icon="@drawable/ic_bluetooth"
+                android:title="@string/bluetooth" />
+        </menu>
+    </item>
+    <item android:title="@string/options">
+        <menu>
+            <item
+                android:id="@+id/nav_options"
+                android:icon="@drawable/ic_options"
+                android:title="@string/options" />
         </menu>
     </item>
 </menu>

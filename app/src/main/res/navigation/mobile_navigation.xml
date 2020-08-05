@@ -11,4 +11,16 @@
         android:label="@string/menu_home"
         tools:layout="@layout/fragment_home" />
 
+    <fragment
+        android:id="@+id/nav_options"
+        android:name="com.fablab.onstep.ui.options.OptionsFragment"
+        android:label="@string/action_settings"
+        tools:layout="@layout/fragment_options" />
+
+    <fragment
+        android:id="@+id/nav_bluetooth"
+        android:name="com.fablab.onstep.ui.bluetooth.BluetoothFragment"
+        android:label="@string/action_bluetooth"
+        tools:layout="@layout/fragment_bluetooth" />
+
 </navigation>

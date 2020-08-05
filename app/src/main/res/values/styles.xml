@@ -2,26 +2,61 @@
     <style name="LightTheme" parent="Theme.AppCompat.Light">
         <item name="windowActionBar">false</item> <!-- this line and the one below are necessary to make the splash screen work -->
         <item name="windowNoTitle">true</item>
+        <item name="android:textColorPrimary">@color/lightTextColor</item>
+        <item name="colorPrimary">@color/colorPrimaryDark</item>
+        <item name="backgroundColor">@color/lightWindowBackground</item>
+        <item name="colorButtonNormal">@color/buttonColor</item>
+        <item name="color">@color/lightTextColor</item>
     </style>
 
     <style name="DarkTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- neat colors -->
         <item name="android:windowBackground">@color/windowBackground</item>
-        <item name="android:textColor">@color/textColorPrimary</item>
+        <item name="android:textColor">@color/darkTextColor</item>
         <item name="android:itemBackground">@color/windowBackground</item>
-        <item name="android:actionBarStyle">@style/CustomActionBar</item>
+        <item name="backgroundColor">@color/windowBackground</item>
         <item name="windowActionBar">false</item> <!-- this line and the one below are necessary to make the splash screen work -->
         <item name="windowNoTitle">true</item>
         <item name="android:textColorSecondary">@color/textColorPrimary</item> <!-- to change the menu items text color such as home and connectivity etc... -->
         <item name="android:textColorPrimary">@color/textColorPrimary</item>
-    </style>
-
-    <style name="CustomActionBar">
-        <item name="android:background">@color/menuBackGround</item>
+        <item name="colorButtonNormal">@color/buttonBackgroundDark</item>
+        <item name="color">@color/darkTextColor</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="coloredButton" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:backgroundTint">?colorButtonNormal</item>
+    </style>
+
+    <style name="TextViewPrimaryTitle">
+        <item name="fontFamily">@font/tech_mono</item>
+        <item name="android:textColor">?color</item>
+        <item name="android:textSize">26sp</item>
+    </style>
+
+    <style name="TextViewSecondaryTitle">
+        <item name="fontFamily">@font/tech_mono</item>
+        <item name="android:textColor">?color</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="TextViewNormal">
+        <item name="fontFamily">@font/tech_mono</item>
+        <item name="android:textColor">?color</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="DialogTheme" parent="ThemeOverlay.MaterialComponents.Dark">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:windowFullscreen">false</item>
+    </style>
+
+    <style name="DarkTheme.AnimationDialog" parent="ThemeOverlay.AppCompat.Dialog">
+        <item name="android:windowBackground">#000000</item>
+        <item name="android:textColorPrimary">#FFFFFF</item>
+    </style>
 </resources>

@@ -4,6 +4,7 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
+    <string name="action_bluetooth">Bluetooth</string>
 
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
@@ -11,5 +12,17 @@
     <string name="authors_message"><![CDATA[Brought to you by Sintuz & Fedeb]]></string>
     <string name="app_display_name">OnStep App</string>
     <string name="makerstation_logo">MarkerStation logo</string>
-    <string name="home">home</string>
+    <string name="home">Home</string>
+    <string name="welcome">Welcome!</string>
+    <string name="check_github">Check the app\'s repository on GitHub</string>
+    <string name="visit_our_website">Check our website</string>
+    <string name="options">Options</string>
+    <string name="dark_mode">Dark mode</string>
+    <string name="bluetooth">Bluetooth</string>
+    <string name="connectivity">Connectivity</string>
+    <string name="scan">Scan</string>
+    <string name="stop_discovery">Stop discovery</string>
+    <string name="device_name">Device name</string>
+    <string name="mac_address">MAC Address</string>
+    <string name="disconnect">Disconnect</string>
 </resources>
