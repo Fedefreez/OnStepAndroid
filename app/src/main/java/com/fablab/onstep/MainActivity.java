@@ -1,18 +1,24 @@
 package com.fablab.onstep;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -29,6 +35,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -43,6 +50,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private String currentFragmentTag = "HomeFragment";
 
     private View hostFragment;
+
+    String currentPermissionRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,12 +78,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         hostFragment = findViewById(R.id.nav_host_fragment);
+
+        MainActivity.applicationLogs.add("Checking permissions...");
+        preInitPermissionCheck();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
+
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.openLogsMenuItem:
+                openLogs(MainActivity.this);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public static void openLogs(Context callingContext) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(callingContext, R.style.LogsPopupTheme);
+
+        TextView textView = new TextView(callingContext);
+        textView.setText(TextUtils.join("\n", applicationLogs));
+        textView.setPadding(20, 10, 15, 0);
+        textView.setTextColor(callingContext.getColor(R.color.textColorPrimary));
+
+        ScrollView container = new ScrollView(callingContext);
+        container.addView(textView);
+
+        AlertDialog alertDialog = builder.setTitle("App Logs").setView(container).setPositiveButton("Ok", (dialog, which) -> dialog.dismiss()).create();
+        Objects.requireNonNull(alertDialog.getWindow()).getAttributes().windowAnimations = R.style.DialogAnimation;
+        alertDialog.show();
     }
 
     @Override
@@ -86,7 +126,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         ActionBar actionBar = getSupportActionBar(); //getActionBar() returns always null, because NavigationUI uses SupportActionBar
@@ -140,6 +179,71 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Snackbar.make(view, message, Snackbar.LENGTH_LONG).setAction("Action", null).show();
             if (wait)
                 waitForSnackBarClosure();
+        }
+    }
+
+    private void preInitPermissionCheck() {
+        if (!checkLocationPermission()) {
+            MainActivity.applicationLogs.add("Requesting GPS permission...");
+            currentPermissionRequest = "GPS";
+            ActivityCompat.requestPermissions(this, new String[]{ //always add permission to manifest.xml
+                    android.Manifest.permission.ACCESS_FINE_LOCATION
+            }, 1);
+        } else {
+            MainActivity.applicationLogs.add("GPS permission granted.");
+        }
+        if (!checkBluetoothPermission()) {
+            MainActivity.applicationLogs.add("Requesting Bluetooth permission...");
+
+            currentPermissionRequest = "BLUETOOTH";
+            ActivityCompat.requestPermissions(this, new String[] {
+                    Manifest.permission.BLUETOOTH
+            }, 1);
+            currentPermissionRequest = "BLUETOOTH_ADMIN";
+            ActivityCompat.requestPermissions(this, new String[] {
+                    Manifest.permission.BLUETOOTH_ADMIN
+            }, 1);
+        } else {
+            MainActivity.applicationLogs.add("Bluetooth permission granted.");
+        }
+    }
+
+    private boolean checkBluetoothPermission() {
+        String permission = "android.permission.BLUETOOTH";
+        int res = this.checkCallingOrSelfPermission(permission);
+        String permission2 = "android.permission.BLUETOOTH_ADMIN";
+        int res2 = this.checkCallingOrSelfPermission(permission2);
+        return (res == PackageManager.PERMISSION_GRANTED && res2 == PackageManager.PERMISSION_GRANTED);
+    }
+
+    private boolean checkLocationPermission(){
+        String permission = "android.permission.ACCESS_FINE_LOCATION";
+
+        int res = this.checkCallingOrSelfPermission(permission);
+
+        return (res == PackageManager.PERMISSION_GRANTED);
+    }
+
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1) {
+            if (!(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                switch (currentPermissionRequest) {
+                    case "GPS":
+                        createCriticalErrorAlert("Error", "You need to grant GPS permission to the app to allow Bluetooth scanning. This is an Android restriction.", getApplicationContext());
+                        break;
+                    case "BLUETOOTH":
+                    case "BLUETOOTH_ADMIN":
+                        createCriticalErrorAlert("Error", "You need to grant Bluetooth permission to the app to allow Bluetooth scanning.", getApplicationContext());
+                        break;
+                    default:
+                        createCriticalErrorAlert("Error", "Due to an unknown error in the permission request the app can't work. A restart is necessary.", getApplicationContext());
+                        break;
+                }
+
+            }
+        } else {
+            MainActivity.applicationLogs.add("Request code in onRequestPermissionResult() is != 1!");
         }
     }
 

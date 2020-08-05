@@ -67,6 +67,7 @@ public class BluetoothFragment extends Fragment {
     }
 
     private void setupDiscovery() {
+        MainActivity.applicationLogs.add("Starting discovery...");
         try {
             BluetoothAdapter adapter = getAdapter();
             if (adapter != null) {
@@ -74,8 +75,8 @@ public class BluetoothFragment extends Fragment {
                 createBroadcastReceiver(adapter);
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage() + Arrays.toString(e.getStackTrace()));
-            MainActivity.createAlert("We encountered an error, please make sure that your Bluetooth is enabled. Error code 2x05 Cause: " + e.getMessage(), root, false);
+            MainActivity.createAlert("We encountered an error, please make sure that your Bluetooth is enabled. Cause: " + e.getMessage(), root, false);
+            MainActivity.applicationLogs.add("Exception while setting up the discovery: " + e.getMessage() + Arrays.toString(e.getStackTrace()));
         }
     }
 
@@ -89,7 +90,8 @@ public class BluetoothFragment extends Fragment {
                 MainActivity.applicationLogs.add(message);
             }
 
-            MainActivity.createOverlayAlert("Error", "There was an error while starting the discovery, you can try to restart the app. Error code 2x04 Cause: " + e.getMessage(), requireContext());
+            MainActivity.createOverlayAlert("Error", "There was an error while starting the discovery, you can try to restart the app.", requireContext());
+            MainActivity.applicationLogs.add("Error while starting the discovery: cause " + e.getMessage());
         }
     }
 
@@ -97,6 +99,7 @@ public class BluetoothFragment extends Fragment {
         if (adapter.isDiscovering()) {
             //restart discovery if it's already running
             adapter.cancelDiscovery();
+            MainActivity.applicationLogs.add("Discovery canceled as is was already running (shouldn't have happened)");
         }
         adapter.startDiscovery();
 
@@ -106,6 +109,8 @@ public class BluetoothFragment extends Fragment {
     }
 
     private void stopDiscovery(BluetoothAdapter adapter, BroadcastReceiver broadcastReceiver) {
+        MainActivity.applicationLogs.add("Stopping discovery...");
+
         if (adapter != null)
             adapter.cancelDiscovery();
         else {
@@ -113,8 +118,10 @@ public class BluetoothFragment extends Fragment {
             return;
         }
 
-        if (connected)
-            MainActivity.createCriticalErrorAlert("Critical error", "A critical error has occurred, click on restart to restart the app. Error code: 2x02", requireContext());
+        if (connected) {
+            MainActivity.createCriticalErrorAlert("Critical error", "A critical error has occurred, click on restart to restart the app.", requireContext());
+            MainActivity.applicationLogs.add("Connection state update missing! Requesting restart...");
+        }
 
         Button bluetoothControlButton = root.findViewById(R.id.bluetoothControlButton);
         bluetoothControlButton.setText(R.string.scan);
@@ -131,14 +138,19 @@ public class BluetoothFragment extends Fragment {
             // If the adapter is null it means that the device does not support BluetoothDiscovery
             new Handler(Looper.getMainLooper()).post(() -> MainActivity.createAlert("Your device doesn't support Bluetooth therefore you won't be able to use it.", root, false));
 
+            MainActivity.applicationLogs.add("This device doesn't support Bluetooth.");
             return null;
         } else {
             if (!bluetoothAdapter.isEnabled()) {
+                MainActivity.applicationLogs.add("Adapter is offline, requesting to turn on...");
+
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(enableBtIntent, 1);
 
                 return null; //cancel the connection process
             }
+
+            MainActivity.applicationLogs.add("Adapter is ready.");
             return bluetoothAdapter;
         }
     }
@@ -150,12 +162,14 @@ public class BluetoothFragment extends Fragment {
         if (requestCode == 1 && resultCode == -1) {
             setupDiscovery();
         } else if (resultCode == 0) {
+            MainActivity.applicationLogs.add("User denied permission to turn on Bluetooth.");
             MainActivity.createAlert("You need to turn on Bluetooth in order to start scanning.", root, false);
             //button isn't unlocked if we don't grant permission.
             Button bluetoothControlButton = root.findViewById(R.id.bluetoothControlButton);
             bluetoothControlButton.setText(R.string.scan);
             bluetoothControlButton.setOnClickListener((v) -> setupDiscovery());
         } else {
+            MainActivity.applicationLogs.add("Unexpected resultCode for onActivityResult().");
             MainActivity.createOverlayAlert("Alert", "We encountered an unexpected error while filtering out some requests. No restart is needed, but some functions may not work.", requireContext());
             //we're resetting the button to not risk.
             Button bluetoothControlButton = root.findViewById(R.id.bluetoothControlButton);
@@ -165,6 +179,9 @@ public class BluetoothFragment extends Fragment {
     }
 
     private BroadcastReceiver registerListener() {
+        ArrayList<String> MACAddresses = new ArrayList<>();
+        MainActivity.applicationLogs.add("Registering listener...");
+
         BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
@@ -176,18 +193,25 @@ public class BluetoothFragment extends Fragment {
                         return;
                     }
 
-                    View v = View.inflate(requireContext(), R.layout.bluetooth_device, null); //inflating from a layoutInflater requires parent view as parameter but it seems not fixable... https://stackoverflow.com/questions/24832497/avoid-passing-null-as-the-view-root-need-to-resolve-layout-parameters-on-the-in
+                    if (MACAddresses.contains(device.getAddress())) {
+                        MainActivity.applicationLogs.add("Device with MAC address " + device.getAddress() + " is duplicate.");
+                    } else {
+                        MainActivity.applicationLogs.add("New device, name: " + device.getName() + " MACAddr: " + device.getAddress());
+                        MACAddresses.add(device.getAddress());
 
-                    TextView deviceNameTextView = v.findViewById(R.id.deviceName);
-                    deviceNameTextView.setText(device.getName());
+                        View v = View.inflate(requireContext(), R.layout.bluetooth_device, null); //inflating from a layoutInflater requires parent view as parameter but it seems not fixable... https://stackoverflow.com/questions/24832497/avoid-passing-null-as-the-view-root-need-to-resolve-layout-parameters-on-the-in
 
-                    TextView deviceMACAddressTextView = v.findViewById(R.id.deviceMACAddress);
-                    deviceMACAddressTextView.setText(device.getAddress());
+                        TextView deviceNameTextView = v.findViewById(R.id.deviceName);
+                        deviceNameTextView.setText(device.getName());
 
-                    v.setOnClickListener((buttonView) -> connect(device));
+                        TextView deviceMACAddressTextView = v.findViewById(R.id.deviceMACAddress);
+                        deviceMACAddressTextView.setText(device.getAddress());
 
-                    ViewGroup containerLayout = requireView().findViewById(R.id.devicesLayout);
-                    containerLayout.post(() -> containerLayout.addView(v, 0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)));
+                        v.setOnClickListener((buttonView) -> connect(device));
+
+                        ViewGroup containerLayout = requireView().findViewById(R.id.devicesLayout);
+                        containerLayout.post(() -> containerLayout.addView(v, 0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)));
+                    }
                 }
             }
         };
@@ -202,12 +226,16 @@ public class BluetoothFragment extends Fragment {
     private ArrayList<BluetoothDevice> getPairedDevices(BluetoothAdapter adapter) {
         Set<BluetoothDevice> pairedDevices =  adapter.getBondedDevices();
 
+        MainActivity.applicationLogs.add(pairedDevices.size() + " paired devices found.");
+
         return new ArrayList<>(pairedDevices);
     }
 
     //-----------connect--------------
 
     private void startConnectionAnimation() {
+        MainActivity.applicationLogs.add("Starting connection animation...");
+
         animationDialog = new AlertDialog.Builder(requireContext(), R.style.DarkTheme_AnimationDialog).setCancelable(false).setTitle("Connecting").create();
 
         ImageView animation = new ImageView(requireContext());
@@ -239,7 +267,9 @@ public class BluetoothFragment extends Fragment {
         Glide.with(requireContext()).load((OptionsFragment.getPreferencesBoolean("DarkTheme", requireContext())) ? R.drawable.connecting_dark : R.drawable.connecting_light).into((ImageView) animationLayout.findViewById(animationId)); //cast is necessary due to Target<Drawable> being ambiguous
     }
 
-    private void stopConnectionAnimation(AlertDialog animationDialog) {
+    private void stopConnectionAnimation() {
+        MainActivity.applicationLogs.add("Stopping connection animation...");
+
         animationDialog.dismiss();
     }
 
@@ -250,6 +280,7 @@ public class BluetoothFragment extends Fragment {
 
         if (!pairedDevices.contains(device)) {
             MainActivity.createAlert("You need to pair to this device first.", root, true);
+            stopConnectionAnimation();
             return;
         }
 
@@ -263,6 +294,7 @@ public class BluetoothFragment extends Fragment {
                     bluetoothSocket = device.createRfcommSocketToServiceRecord(genericConnectionUUID);
                 } catch (IOException e) {
                     new Handler(Looper.getMainLooper()).post(() -> MainActivity.createAlert("Socket creation failed ):", root, false));
+                    MainActivity.applicationLogs.add("Socket creation failed: " + e.getMessage());
                     return;
                 }
 
@@ -275,8 +307,8 @@ public class BluetoothFragment extends Fragment {
                     bluetoothControlButton.setText(R.string.disconnect);
                     bluetoothControlButton.setOnClickListener((v) -> disconnectBluetooth());
 
-                    MainActivity.createAlert("Connection successful.", root, false);
-                    stopConnectionAnimation(animationDialog);
+                    new Handler(Looper.getMainLooper()).post(() -> MainActivity.createAlert("Connection successful.", root, false));
+                    stopConnectionAnimation();
 
                     new Thread() {
                         @Override
@@ -301,7 +333,7 @@ public class BluetoothFragment extends Fragment {
                         }
                     }.start();
                 } catch (Exception e) {
-                    stopConnectionAnimation(animationDialog);
+                    stopConnectionAnimation();
                     disconnectBluetooth();
 
                     new Handler(Looper.getMainLooper()).post(() -> MainActivity.createAlert("Connection failed.", root, false));
@@ -317,6 +349,8 @@ public class BluetoothFragment extends Fragment {
     }
 
     private void disconnectBluetooth() {
+        MainActivity.applicationLogs.add("Disconnecting...");
+
         try {
             bluetoothSocket.close();
             connected = false;
@@ -326,6 +360,7 @@ public class BluetoothFragment extends Fragment {
                 MainActivity.applicationLogs.add("Couldn't close the client socket. Cause: " + e.getCause() + " \n Stack trace: " + Arrays.toString(e.getStackTrace()));
         } catch (NullPointerException e) {
             new Handler(Looper.getMainLooper()).post(() -> MainActivity.createOverlayAlert("Error", "Error while closing the client socket.  Cause: " + e.getMessage(), requireContext()));
+            MainActivity.applicationLogs.add("Couldn't close the client socket. Cause: " + e.getCause() + " \n Stack trace: " + Arrays.toString(e.getStackTrace()));
         }
     }
 
@@ -395,12 +430,17 @@ public class BluetoothFragment extends Fragment {
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 
         if (adapter != null) adapter.cancelDiscovery();
-        else MainActivity.createOverlayAlert("Error", "We had an error cancelling the device discovery. It is recommended to restart the app.", getContext());
+        else {
+            MainActivity.createOverlayAlert("Error", "We had an error cancelling the device discovery. It is recommended to restart the app.", getContext());
+            MainActivity.applicationLogs.add("Adapter is null while cancelling discovery.");
+        }
         super.onPause();
     }
 
     @Override
     public void onStop() {
+        MainActivity.applicationLogs.add("Stopping animationDialog.");
+
         if (animationDialog != null && animationDialog.isShowing()) {
             animationDialog.dismiss();
             //we need to dismiss any dialog when the phone is rotated, otherwise an exception will be thrown. See https://stackoverflow.com/questions/2224676/android-view-not-attached-to-window-manager
