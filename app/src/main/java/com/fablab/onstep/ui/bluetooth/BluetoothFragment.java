@@ -372,8 +372,10 @@ public class BluetoothFragment extends Fragment {
             } catch (IOException e) {
                 String msg = "Couldn't write command. Cause: " + e.getMessage();
                 MainActivity.createAlert(msg, callingView, false);
+                MainActivity.applicationLogs.add("Couldn't write on outputStream: " + e.getMessage());
             }
         } else {
+            MainActivity.applicationLogs.add("Error: Not connected.");
             MainActivity.createAlert("Not connected!", callingView, true);
         }
     }

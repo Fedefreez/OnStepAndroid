@@ -22,18 +22,20 @@ public class SendCustomCommandsFragment extends Fragment {
 
         Button sendCustomDataButton = root.findViewById(R.id.submitCustomCommandButton);
         sendCustomDataButton.setOnClickListener((v) -> {
+            MainActivity.applicationLogs.add("Attempting to send: " + customCommandEditText.getText().toString());
+
             byte[] command = new byte[customCommandEditText.getText().toString().split(" ").length];
             int ptr = 0;
             for (String currentByte : customCommandEditText.getText().toString().split(" ")) {
-                command[ptr] = (byte) Integer.parseInt(currentByte);
+                try {
+                    command[ptr] = (byte) Integer.parseInt(currentByte);
+                } catch (NumberFormatException e) {
+                    MainActivity.createAlert("Please insert a valid number. (multiple bytes can be sent using spaces)", requireView(), true);
+                }
                 ptr++;
             }
 
-            try {
-                BluetoothFragment.sendData(root, command);
-            } catch (NumberFormatException e) {
-                MainActivity.createAlert("Please insert a valid number", root, false);
-            }
+            BluetoothFragment.sendData(root, command);
         });
 
         return root;
