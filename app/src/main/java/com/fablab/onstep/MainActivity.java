@@ -29,6 +29,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.fablab.onstep.ui.bluetooth.BluetoothFragment;
+import com.fablab.onstep.ui.commands.SendCustomCommandsFragment;
 import com.fablab.onstep.ui.home.HomeFragment;
 import com.fablab.onstep.ui.options.OptionsFragment;
 import com.google.android.material.navigation.NavigationView;
@@ -146,6 +147,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Fragment bluetoothFragment = new BluetoothFragment();
             switchFragment(bluetoothFragment, "BluetoothFragment");
             if (actionBar != null) actionBar.setTitle("Bluetooth");
+        } else if (id == R.id.nav_send_custom_commands) {
+            Fragment sendCustomCommandsFragment = new SendCustomCommandsFragment();
+            switchFragment(sendCustomCommandsFragment, "SendCustomCommandFragment");
+            if (actionBar != null) actionBar.setTitle("Send custom commands");
         } else {
             Log.i(TAG, "No fragment id match!");
         }

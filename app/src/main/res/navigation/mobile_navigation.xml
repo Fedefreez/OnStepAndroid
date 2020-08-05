@@ -23,4 +23,10 @@
         android:label="@string/action_bluetooth"
         tools:layout="@layout/fragment_bluetooth" />
 
+    <fragment
+        android:id="@+id/nav_send_custom_commands"
+        android:name="com.fablab.onstep.ui.commands.SendCustomCommandsFragment"
+        android:label="@string/send_custom_commands"
+        tools:layout="@layout/fragment_send_custom_commands" />
+
 </navigation>

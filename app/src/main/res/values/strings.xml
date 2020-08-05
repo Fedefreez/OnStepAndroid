@@ -26,4 +26,8 @@
     <string name="mac_address">MAC Address</string>
     <string name="disconnect">Disconnect</string>
     <string name="open_logs">Open logs</string>
+    <string name="send_custom_commands">Send custom commands</string>
+    <string name="send_custom_data">Send custom data</string>
+    <string name="insert_custom_command">Insert custom command</string>
+    <string name="submit">Submit</string>
 </resources>

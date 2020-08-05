@@ -364,12 +364,8 @@ public class BluetoothFragment extends Fragment {
         }
     }
 
-    public static void sendData(View callingView, byte pref, byte cmd, byte... extra) {
+    public static void sendData(View callingView, byte[] command) {
         if (outputStream != null) {
-            byte[] command = new byte[2 + extra.length];
-            command[0] = pref;
-            command[1] = cmd;
-            System.arraycopy(extra, 0, command, 2, extra.length + 2 - 2);
             try {
                 outputStream.write(command);
                 outputStream.flush();
@@ -382,37 +378,38 @@ public class BluetoothFragment extends Fragment {
         }
     }
 
-
-    public static void sendCustomCommand(View view, Context applicationContext) {
+    public static void openCustomCommandDialog(View view, Context applicationContext) {
         boolean DarkTheme = OptionsFragment.getPreferencesBoolean("DarkTheme", applicationContext);
         AlertDialog.Builder dialog = new AlertDialog.Builder(applicationContext, DarkTheme ? R.style.DialogTheme : R.style.Theme_AppCompat_Light_Dialog);
         dialog.setTitle("Command parameters");
-        dialog.setMessage("Type in the prefix then the command e.g. (221, 1)");
+        dialog.setMessage("Type in the command");
 
         LinearLayout layout = new LinearLayout(applicationContext);
         layout.setOrientation(LinearLayout.VERTICAL); //without this you can only put one view at once
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(30, 10, 30, 10);
+        layout.setLayoutParams(lp);
 
-        EditText prefixInput = new EditText(applicationContext);
-        if (DarkTheme) prefixInput.setTextColor(Color.WHITE);
-        prefixInput.setLayoutParams(new LinearLayout.LayoutParams(
+        EditText commandInput = new EditText(applicationContext);
+        if (DarkTheme) commandInput.setTextColor(Color.WHITE);
+        commandInput.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
         ));
-        prefixInput.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL); //input is floating point
+        commandInput.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL); //input is floating point
 
-        layout.addView(prefixInput);
-        EditText cmdInput = new EditText(applicationContext);
-        if (DarkTheme) cmdInput.setTextColor(Color.WHITE);
-        cmdInput.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        ));
-        cmdInput.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL); //input is floating point
-        layout.addView(cmdInput);
+        layout.addView(commandInput);
         dialog.setView(layout);
         dialog.setPositiveButton("Done", (dialog1, which) -> {
+            byte[] command = new byte[commandInput.getText().toString().split(" ").length];
+            int ptr = 0;
+            for (String currentByte : commandInput.getText().toString().split(" ")) {
+                command[ptr] = (byte) Integer.parseInt(currentByte);
+                ptr++;
+            }
+
             try {
-                sendData(view, (byte) Integer.parseInt(prefixInput.getText().toString()), (byte) Integer.parseInt(cmdInput.getText().toString()));
+                sendData(view, command);
             } catch (NumberFormatException e) {
                 MainActivity.createAlert("Please insert a valid number", view, false);
             }

@@ -17,6 +17,10 @@
                 android:id="@+id/nav_bluetooth"
                 android:icon="@drawable/ic_bluetooth"
                 android:title="@string/bluetooth" />
+            <item
+                android:id="@+id/nav_send_custom_commands"
+                android:icon="@drawable/ic_send"
+                android:title="@string/send_custom_commands" />
         </menu>
     </item>
     <item android:title="@string/options">
