@@ -23,6 +23,14 @@
                 android:title="@string/send_custom_commands" />
         </menu>
     </item>
+    <item android:title="@string/controls">
+        <menu>
+            <item
+                android:id="@+id/nav_motion_controls"
+                android:icon="@drawable/ic_motion_controls"
+                android:title="@string/motion_controls" />
+        </menu>
+    </item>
     <item android:title="@string/options">
         <menu>
             <item

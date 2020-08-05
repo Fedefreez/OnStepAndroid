@@ -12,4 +12,6 @@
     <color name="lightTextColor">#000000</color>
     <color name="buttonBackgroundDark">#777777</color>
     <color name="separationLineColor">#AAAAAA</color>
+    <color name="increaseColor">#5CC478</color>
+    <color name="decreaseColor">#DE3737</color>
 </resources>

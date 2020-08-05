@@ -31,4 +31,17 @@
     <string name="insert_custom_command">Insert custom command</string>
     <string name="submit">Submit</string>
     <string name="telescope_logo">Telescope logo</string>
+    <string name="motion_controls">Motion controls</string>
+    <string name="controls">Controls</string>
+    <string name="minus">-</string>
+    <string name="west_pointing_arrow">West pointing arrow</string>
+    <string name="up_pointing_arrow">Up pointing arrow</string>
+    <string name="East_pointing_arrow">East pointing arrow</string>
+    <string name="down_pointing_arrow">Down pointing arrow</string>
+    <string name="plus">+</string>
+    <string name="motor_speed">Motor speed</string>
+    <string name="set_motor_speed">:R%d#</string>
+
+    <string name="empty_int">%d</string>
+    <string name="enable_tracking">Enable tracking</string>
 </resources>

@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -31,6 +32,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.fablab.onstep.ui.bluetooth.BluetoothFragment;
 import com.fablab.onstep.ui.commands.SendCustomCommandsFragment;
 import com.fablab.onstep.ui.home.HomeFragment;
+import com.fablab.onstep.ui.motion.MotionControlsFragment;
 import com.fablab.onstep.ui.options.OptionsFragment;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -48,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static boolean canCreateSnackBar = true;
 
     private AppBarConfiguration mAppBarConfiguration;
-    private String currentFragmentTag = "HomeFragment";
+    private String currentFragmentTag;
 
     private View hostFragment;
 
@@ -68,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        mAppBarConfiguration = new AppBarConfiguration.Builder(R.id.nav_home, R.id.nav_options, R.id.nav_bluetooth).setOpenableLayout(drawer).build(); // -> by default we use setDrawerLayout instead of steOpenableLayout, but it's deprecated.sit
+        mAppBarConfiguration = new AppBarConfiguration.Builder(R.id.nav_home, R.id.nav_options, R.id.nav_bluetooth, R.id.nav_send_custom_commands, R.id.nav_motion_controls).setOpenableLayout(drawer).build(); // -> by default we use setDrawerLayout instead of steOpenableLayout, but it's deprecated.sit
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         //NavigationUI.setupWithNavController(navigationView, navController);     //-> this garbage overrides our onNavigationItemSelectedListener, see https://stackoverflow.com/a/61273125/9419048
@@ -144,13 +146,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             switchFragment(optionsFragment, "OptionsFragment");
             if (actionBar != null) actionBar.setTitle("Options");
         } else if (id == R.id.nav_bluetooth) {
-            Fragment bluetoothFragment = new BluetoothFragment();
+            Fragment bluetoothFragment = new BluetoothFragment(hostFragment);
             switchFragment(bluetoothFragment, "BluetoothFragment");
             if (actionBar != null) actionBar.setTitle("Bluetooth");
         } else if (id == R.id.nav_send_custom_commands) {
             Fragment sendCustomCommandsFragment = new SendCustomCommandsFragment();
             switchFragment(sendCustomCommandsFragment, "SendCustomCommandFragment");
-            if (actionBar != null) actionBar.setTitle("Send custom commands");
+            if (actionBar != null) actionBar.setTitle("Custom Command");
+        } else if (id == R.id.nav_motion_controls) {
+            Fragment motionControlsFragment = new MotionControlsFragment(hostFragment);
+            switchFragment(motionControlsFragment, "MotionControlsFragment");
+            if (actionBar != null) actionBar.setTitle("Motion Controls");
         } else {
             Log.i(TAG, "No fragment id match!");
         }
@@ -164,11 +170,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         FragmentManager fragmentManager = getSupportFragmentManager();
 
-        Fragment fragmentFromStack = fragmentManager.findFragmentByTag(newFragmentTag);
+        Fragment currentFragment = fragmentManager.findFragmentByTag(currentFragmentTag);
+        if (currentFragment != null) currentFragment.onPause();
+        else if (currentFragmentTag != null) createAlert("Couldn't pause the previous fragment. No restart is needed, but the app might not work properly.", hostFragment, false);
+        //if currentFragmentTag is null we don't need to pause the first fragment
 
+        Fragment fragmentFromStack = fragmentManager.findFragmentByTag(newFragmentTag);
         if (fragmentFromStack != null) {
             applicationLogs.add("Using fragment from back stack.");
             fragmentManager.beginTransaction().replace(R.id.nav_host_fragment, fragmentFromStack, newFragmentTag).addToBackStack(currentFragmentTag).commit();
+            fragmentFromStack.onResume();
         } else {
             applicationLogs.add("Creating new fragment instance.");
             fragmentManager.beginTransaction().replace(R.id.nav_host_fragment, fragment, newFragmentTag).addToBackStack(currentFragmentTag).commit();
@@ -292,5 +303,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             android.os.Process.killProcess(android.os.Process.myPid());
             System.exit(1);
         }).setNeutralButton("Ignore", null).show();
+    }
+
+    public static void toggleTouchEvents(ViewGroup viewGroup, boolean enabled) {
+        int childCount = viewGroup.getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            View view = viewGroup.getChildAt(i);
+            view.setEnabled(enabled);
+            if (view instanceof ViewGroup) {
+                toggleTouchEvents((ViewGroup) view, enabled);
+            }
+        }
     }
 }

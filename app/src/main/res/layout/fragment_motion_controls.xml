@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?backgroundColor">
+
+    <Button
+        android:id="@+id/decreaseMotorSpeedButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/circular_button"
+        android:backgroundTint="@color/decreaseColor"
+        android:text="@string/minus"
+        android:textColor="#FFFFFF"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/increaseMotorSpeedButton"
+        app:layout_constraintTop_toTopOf="@+id/increaseMotorSpeedButton" />
+
+    <ImageView
+        android:id="@+id/moveWestImageButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="30dp"
+        app:layout_constraintEnd_toStartOf="@+id/moveNorthImageButton"
+        app:layout_constraintTop_toBottomOf="@+id/moveNorthImageButton"
+        app:srcCompat="@drawable/ic_arrow_west"
+        android:contentDescription="@string/west_pointing_arrow" />
+
+    <ImageView
+        android:id="@+id/moveNorthImageButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.19999999"
+        app:srcCompat="@drawable/ic_arrow_up"
+        android:contentDescription="@string/up_pointing_arrow" />
+
+    <ImageView
+        android:id="@+id/moveEastImageButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="30dp"
+        app:layout_constraintStart_toEndOf="@+id/moveNorthImageButton"
+        app:layout_constraintTop_toBottomOf="@+id/moveNorthImageButton"
+        app:srcCompat="@drawable/ic_arrow_east"
+        android:contentDescription="@string/East_pointing_arrow" />
+
+    <ImageView
+        android:id="@+id/moveSouthImageButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="30dp"
+        app:layout_constraintEnd_toStartOf="@+id/moveEastImageButton"
+        app:layout_constraintStart_toEndOf="@+id/moveWestImageButton"
+        app:layout_constraintTop_toBottomOf="@+id/moveWestImageButton"
+        app:srcCompat="@drawable/ic_arrow_down"
+        android:contentDescription="@string/down_pointing_arrow" />
+
+    <Button
+        android:id="@+id/increaseMotorSpeedButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="11dp"
+        android:background="@drawable/circular_button"
+        android:backgroundTint="@color/increaseColor"
+        android:text="@string/plus"
+        android:textColor="#FFFFFF"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toStartOf="@+id/decreaseMotorSpeedButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView4" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="55dp"
+        android:text="@string/motor_speed"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/moveSouthImageButton" />
+
+    <TextView
+        android:id="@+id/currentMotorSpeedTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/motor_speed"
+        app:layout_constraintBottom_toBottomOf="@+id/decreaseMotorSpeedButton"
+        app:layout_constraintEnd_toStartOf="@+id/decreaseMotorSpeedButton"
+        app:layout_constraintStart_toEndOf="@+id/increaseMotorSpeedButton"
+        app:layout_constraintTop_toTopOf="@+id/increaseMotorSpeedButton" />
+
+    <Button
+        android:id="@+id/toggleTrackingButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/enable_tracking"
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toTopOf="@+id/moveNorthImageButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

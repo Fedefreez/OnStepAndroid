@@ -37,6 +37,7 @@ public class OptionsFragment extends Fragment {
 
         if (isAppFirstRun(applicationContext)) {
             setPreferencesBoolean("debug", false, applicationContext);
+            setPreferencesInt("motorSpeed", 0, applicationContext);
         }
     }
 

@@ -11,8 +11,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.InputType;
-import android.text.method.DigitsKeyListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,10 +32,9 @@ import com.fablab.onstep.MainActivity;
 import com.fablab.onstep.R;
 import com.fablab.onstep.ui.options.OptionsFragment;
 
-import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +44,7 @@ import java.util.UUID;
 
 public class BluetoothFragment extends Fragment {
     private View root;
-    private static boolean connected = false;
+    public static boolean connected = false;
 
     private ArrayList<BluetoothDevice> pairedDevices;
     private AlertDialog animationDialog;
@@ -55,6 +52,12 @@ public class BluetoothFragment extends Fragment {
 
     private static OutputStream outputStream;
     private Thread connectionThread;
+
+    private View fragmentHost;
+
+    public BluetoothFragment(View fragmentHost) {
+        this.fragmentHost = fragmentHost;
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_bluetooth, container, false);
@@ -76,7 +79,7 @@ public class BluetoothFragment extends Fragment {
                 createBroadcastReceiver(adapter);
             }
         } catch (Exception e) {
-            MainActivity.createAlert("We encountered an error, please make sure that your Bluetooth is enabled. Cause: " + e.getMessage(), root, false);
+            MainActivity.createAlert("We encountered an error, please make sure that your Bluetooth is enabled. Cause: " + e.getMessage(), fragmentHost,  false);
             MainActivity.applicationLogs.add("Exception while setting up the discovery: " + e.getMessage() + Arrays.toString(e.getStackTrace()));
         }
     }
@@ -97,6 +100,8 @@ public class BluetoothFragment extends Fragment {
     }
 
     private void startDiscovery(BluetoothAdapter adapter, BroadcastReceiver broadcastReceiver) {
+        ((LinearLayout) root.findViewById(R.id.devicesLayout)).removeAllViews(); //clear
+
         if (adapter.isDiscovering()) {
             //restart discovery if it's already running
             adapter.cancelDiscovery();
@@ -115,7 +120,7 @@ public class BluetoothFragment extends Fragment {
         if (adapter != null)
             adapter.cancelDiscovery();
         else {
-            MainActivity.createAlert("Couldn't cancel discovery: adapter is null.", root, true);
+            MainActivity.createAlert("Couldn't cancel discovery: adapter is null.", fragmentHost,  true);
             return;
         }
 
@@ -137,7 +142,7 @@ public class BluetoothFragment extends Fragment {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
             // If the adapter is null it means that the device does not support BluetoothDiscovery
-            new Handler(Looper.getMainLooper()).post(() -> MainActivity.createAlert("Your device doesn't support Bluetooth therefore you won't be able to use it.", root, false));
+            new Handler(Looper.getMainLooper()).post(() -> MainActivity.createAlert("Your device doesn't support Bluetooth therefore you won't be able to use it.", fragmentHost,  false));
 
             MainActivity.applicationLogs.add("This device doesn't support Bluetooth.");
             return null;
@@ -164,7 +169,7 @@ public class BluetoothFragment extends Fragment {
             setupDiscovery();
         } else if (resultCode == 0) {
             MainActivity.applicationLogs.add("User denied permission to turn on Bluetooth.");
-            MainActivity.createAlert("You need to turn on Bluetooth in order to start scanning.", root, false);
+            MainActivity.createAlert("You need to turn on Bluetooth in order to start scanning.", fragmentHost,  false);
             //button isn't unlocked if we don't grant permission.
             Button bluetoothControlButton = root.findViewById(R.id.bluetoothControlButton);
             bluetoothControlButton.setText(R.string.scan);
@@ -261,7 +266,7 @@ public class BluetoothFragment extends Fragment {
             lp.dimAmount=0.0f;
             animationDialog.getWindow().setAttributes(lp);
         } catch (NullPointerException e) {
-            MainActivity.createAlert("Failed to set some settings on the loading animation", root, false);
+            MainActivity.createAlert("Failed to set some settings on the loading animation", fragmentHost,  false);
         }
         animationDialog.setContentView(animationLayout, new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT));
 
@@ -280,7 +285,7 @@ public class BluetoothFragment extends Fragment {
 
 
         if (!pairedDevices.contains(device)) {
-            MainActivity.createAlert("You need to pair to this device first.", root, true);
+            MainActivity.createAlert("You need to pair to this device first.", fragmentHost,  true);
             stopConnectionAnimation();
             return;
         }
@@ -294,7 +299,9 @@ public class BluetoothFragment extends Fragment {
                 try {
                     bluetoothSocket = device.createRfcommSocketToServiceRecord(genericConnectionUUID);
                 } catch (IOException e) {
-                    new Handler(Looper.getMainLooper()).post(() -> MainActivity.createAlert("Socket creation failed ):", root, false));
+                    stopConnectionAnimation();
+
+                    new Handler(Looper.getMainLooper()).post(() -> MainActivity.createAlert("Socket creation failed ):", fragmentHost,  false));
                     MainActivity.applicationLogs.add("Socket creation failed: " + e.getMessage());
                     return;
                 }
@@ -305,10 +312,12 @@ public class BluetoothFragment extends Fragment {
                     connected = true;
 
                     Button bluetoothControlButton = root.findViewById(R.id.bluetoothControlButton);
-                    bluetoothControlButton.setText(R.string.disconnect);
-                    bluetoothControlButton.setOnClickListener((v) -> disconnectBluetooth());
+                    bluetoothControlButton.post(() -> {
+                        bluetoothControlButton.setText(R.string.disconnect);
+                        bluetoothControlButton.setOnClickListener((v) -> disconnectBluetooth());
+                    });
 
-                    new Handler(Looper.getMainLooper()).post(() -> MainActivity.createAlert("Connection successful.", root, false));
+                    new Handler(Looper.getMainLooper()).post(() -> MainActivity.createAlert("Connection successful.", fragmentHost,  false));
                     stopConnectionAnimation();
 
                     new Thread() {
@@ -316,16 +325,28 @@ public class BluetoothFragment extends Fragment {
                         public void run() {
                             try {
                                 outputStream = bluetoothSocket.getOutputStream();
-                                InputStream in = bluetoothSocket.getInputStream();
+                                InputStream inputStream = bluetoothSocket.getInputStream();
 
-                                BufferedReader br = new BufferedReader(new InputStreamReader(in));
+                                DataInputStream inStream = new DataInputStream(inputStream);
+                                //BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
 
-                                String message;
-                                while ((message = br.readLine()) != null) {
-                                    MainActivity.applicationLogs.add("Received: " + message);
+//                                String message;
+//                                while ((message = br.readLine()) != null) {
+//                                    MainActivity.applicationLogs.add("Received: " + message);
+//                                }
+
+                                while (connected) {
+                                    byte[] buffer = new byte[256];  // buffer store for the stream
+                                    int bytes = inStream.read(buffer);
+                                    String readMessage = new String(buffer, 0, bytes);
+
+                                    MainActivity.createAlert("Received: " + readMessage, fragmentHost, true);
+                                    MainActivity.applicationLogs.add("Received: " + readMessage);
                                 }
+
+                                MainActivity.applicationLogs.add("Read process exited.");
                             } catch (IOException e) {
-                                MainActivity.createAlert("Unable to read from InputStream: disconnected.", root, false);
+                                new Handler(Looper.getMainLooper()).post(() -> MainActivity.createAlert("Unable to read from InputStream: disconnected.", fragmentHost,  false));
                                 MainActivity.applicationLogs.add("Connection error, cause: " + e.getMessage());
 
                                 outputStream = null;
@@ -333,13 +354,18 @@ public class BluetoothFragment extends Fragment {
                             }
                         }
                     }.start();
-                } catch (Exception e) {
+                } catch (IOException e) {
                     stopConnectionAnimation();
                     disconnectBluetooth();
 
-                    new Handler(Looper.getMainLooper()).post(() -> MainActivity.createAlert("Connection failed.", root, false));
+                    new Handler(Looper.getMainLooper()).post(() -> MainActivity.createAlert("Connection failed.", fragmentHost,  false));
                     MainActivity.applicationLogs.add("Connection failed.\nCause: " + e.getMessage());
                     connected = false;
+                } catch (Exception e) {
+                    stopConnectionAnimation();
+
+                    new Handler(Looper.getMainLooper()).post(() -> MainActivity.createAlert("An exception occurred, check the logs.", fragmentHost,  false));
+                    MainActivity.applicationLogs.add("An exception not affecting bluetooth occurred, therefore the connection is still active. Cause: " + e.getMessage());
                 }
             }
 
@@ -356,7 +382,7 @@ public class BluetoothFragment extends Fragment {
             bluetoothSocket.close();
             connected = false;
         } catch (IOException e) {
-            new Handler(Looper.getMainLooper()).post(() -> MainActivity.createAlert("Error while closing the client socket: disconnected.", root, false));
+            new Handler(Looper.getMainLooper()).post(() -> MainActivity.createAlert("Error while closing the client socket: disconnected.", fragmentHost,  false));
             if (OptionsFragment.getPreferencesBoolean("debug", getContext()))
                 MainActivity.applicationLogs.add("Couldn't close the client socket. Cause: " + e.getCause() + " \n Stack trace: " + Arrays.toString(e.getStackTrace()));
         } catch (NullPointerException e) {
@@ -366,6 +392,8 @@ public class BluetoothFragment extends Fragment {
     }
 
     public static void sendData(View callingView, byte[] command) {
+        MainActivity.applicationLogs.add("The following bytes are being sent: " + Arrays.toString(command));
+
         if (outputStream != null) {
             try {
                 outputStream.write(command);
@@ -399,30 +427,18 @@ public class BluetoothFragment extends Fragment {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
         ));
-        commandInput.setKeyListener(DigitsKeyListener.getInstance("0123456789 "));
+
+        byte[] command = commandInput.getText().toString().getBytes();
 
         layout.addView(commandInput);
         dialog.setView(layout);
-        dialog.setPositiveButton("Done", (dialog1, which) -> {
-            byte[] command = new byte[commandInput.getText().toString().split(" ").length];
-            int ptr = 0;
-            for (String currentByte : commandInput.getText().toString().split(" ")) {
-                command[ptr] = (byte) Integer.parseInt(currentByte);
-                ptr++;
-            }
-
-            try {
-                sendData(view, command);
-            } catch (NumberFormatException e) {
-                MainActivity.createAlert("Please insert a valid number", view, false);
-            }
-        });
+        dialog.setPositiveButton("Done", (dialog1, which) -> sendData(view, command));
         AlertDialog alertDialog = dialog.create();
         alertDialog.show();
     }
 
     private void contextNotFound() {
-        MainActivity.createAlert("There was an error while updating the countdown. You should restart the app.", root, false);
+        MainActivity.createAlert("There was an error while updating the countdown. You should restart the app.", fragmentHost,  false);
     }
 
     @Override
