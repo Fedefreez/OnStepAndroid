@@ -30,4 +30,5 @@
     <string name="send_custom_data">Send custom data</string>
     <string name="insert_custom_command">Insert custom command</string>
     <string name="submit">Submit</string>
+    <string name="telescope_logo">Telescope logo</string>
 </resources>
