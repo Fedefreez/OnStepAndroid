@@ -31,7 +31,7 @@ public class MotionControlsFragment extends Fragment {
     private static final String STOP_SOUTH = ":Qs#";
 
     private int currentMotorSpeed;
-    private boolean toggleTracking;
+    private boolean toggleTracking = true;
 
     public MotionControlsFragment(View hostFragment) {
         this.hostFragment = hostFragment;
