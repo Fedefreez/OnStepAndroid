@@ -63,7 +63,12 @@ public class BluetoothFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_bluetooth, container, false);
 
         Button bluetoothControlButton = root.findViewById(R.id.bluetoothControlButton);
-        bluetoothControlButton.setOnClickListener((v) -> setupDiscovery());
+        if (connected) {
+            bluetoothControlButton.setText(R.string.disconnect);
+            bluetoothControlButton.setOnClickListener((v) -> disconnectBluetooth());
+        } else {
+            bluetoothControlButton.setOnClickListener((v) -> setupDiscovery());
+        }
 
         this.root = root;
 
@@ -388,6 +393,14 @@ public class BluetoothFragment extends Fragment {
         } catch (NullPointerException e) {
             new Handler(Looper.getMainLooper()).post(() -> MainActivity.createOverlayAlert("Error", "Error while closing the client socket.  Cause: " + e.getMessage(), requireContext()));
             MainActivity.applicationLogs.add("Couldn't close the client socket. Cause: " + e.getCause() + " \n Stack trace: " + Arrays.toString(e.getStackTrace()));
+        } finally {
+            Button bluetoothControlButton = requireView().findViewById(R.id.bluetoothControlButton);
+            if (bluetoothControlButton != null) { //if it's null it means the user is in another fragment so it's going to be auto updated in the onCreateView()
+                bluetoothControlButton.post(() -> {
+                    bluetoothControlButton.setOnClickListener((v) -> setupDiscovery());
+                    bluetoothControlButton.setText(R.string.scan);
+                });
+            }
         }
     }
 
