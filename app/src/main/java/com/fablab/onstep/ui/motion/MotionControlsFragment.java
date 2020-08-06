@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
 import com.fablab.onstep.MainActivity;
@@ -42,6 +43,14 @@ public class MotionControlsFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_motion_controls, container, false);
 
         MainActivity.toggleTouchEvents((ViewGroup) root, BluetoothFragment.connected);
+
+        if (OptionsFragment.getPreferencesBoolean("DarkTheme", requireContext())) {
+            ((ImageView) root.findViewById(R.id.moveNorthImageButton)).setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_up, null));
+            ((ImageView) root.findViewById(R.id.moveEastImageButton)).setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_east, null));
+            ((ImageView) root.findViewById(R.id.moveWestImageButton)).setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_west, null));
+            ((ImageView) root.findViewById(R.id.moveSouthImageButton)).setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_down, null));
+
+        }
 
         currentMotorSpeed = OptionsFragment.getPreferencesInt("motorSpeed", hostFragment.getContext());
         TextView currentMotorSpeedTextView = root.findViewById(R.id.currentMotorSpeedTextView);

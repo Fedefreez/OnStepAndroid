@@ -44,4 +44,5 @@
 
     <string name="empty_int">%d</string>
     <string name="enable_tracking">Enable tracking</string>
+    <string name="onstep">OnStep</string>
 </resources>

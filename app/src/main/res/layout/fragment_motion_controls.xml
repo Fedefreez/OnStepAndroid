@@ -24,22 +24,22 @@
         android:layout_height="50dp"
         android:layout_marginTop="30dp"
         android:layout_marginEnd="30dp"
+        android:contentDescription="@string/west_pointing_arrow"
         app:layout_constraintEnd_toStartOf="@+id/moveNorthImageButton"
         app:layout_constraintTop_toBottomOf="@+id/moveNorthImageButton"
-        app:srcCompat="@drawable/ic_arrow_west"
-        android:contentDescription="@string/west_pointing_arrow" />
+        app:srcCompat="@drawable/ic_arrow_west_light" />
 
     <ImageView
         android:id="@+id/moveNorthImageButton"
         android:layout_width="50dp"
         android:layout_height="50dp"
+        android:contentDescription="@string/up_pointing_arrow"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.19999999"
-        app:srcCompat="@drawable/ic_arrow_up"
-        android:contentDescription="@string/up_pointing_arrow" />
+        app:srcCompat="@drawable/ic_arrow_up_light" />
 
     <ImageView
         android:id="@+id/moveEastImageButton"
@@ -47,21 +47,21 @@
         android:layout_height="50dp"
         android:layout_marginStart="30dp"
         android:layout_marginTop="30dp"
+        android:contentDescription="@string/East_pointing_arrow"
         app:layout_constraintStart_toEndOf="@+id/moveNorthImageButton"
         app:layout_constraintTop_toBottomOf="@+id/moveNorthImageButton"
-        app:srcCompat="@drawable/ic_arrow_east"
-        android:contentDescription="@string/East_pointing_arrow" />
+        app:srcCompat="@drawable/ic_arrow_east_light" />
 
     <ImageView
         android:id="@+id/moveSouthImageButton"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginTop="30dp"
+        android:contentDescription="@string/down_pointing_arrow"
         app:layout_constraintEnd_toStartOf="@+id/moveEastImageButton"
         app:layout_constraintStart_toEndOf="@+id/moveWestImageButton"
         app:layout_constraintTop_toBottomOf="@+id/moveWestImageButton"
-        app:srcCompat="@drawable/ic_arrow_down"
-        android:contentDescription="@string/down_pointing_arrow" />
+        app:srcCompat="@drawable/ic_arrow_down_light" />
 
     <Button
         android:id="@+id/increaseMotorSpeedButton"
