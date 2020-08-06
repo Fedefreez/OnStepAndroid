@@ -14,8 +14,8 @@
         android:text="@string/minus"
         android:textColor="#FFFFFF"
         android:textSize="30sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/increaseMotorSpeedButton"
+        app:layout_constraintEnd_toStartOf="@+id/increaseMotorSpeedButton"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/increaseMotorSpeedButton" />
 
     <ImageView
@@ -67,14 +67,14 @@
         android:id="@+id/increaseMotorSpeedButton"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginTop="11dp"
+        android:layout_marginTop="17dp"
         android:background="@drawable/circular_button"
         android:backgroundTint="@color/increaseColor"
         android:text="@string/plus"
         android:textColor="#FFFFFF"
         android:textSize="30sp"
-        app:layout_constraintEnd_toStartOf="@+id/decreaseMotorSpeedButton"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/decreaseMotorSpeedButton"
         app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
     <TextView
@@ -93,8 +93,8 @@
         android:layout_height="wrap_content"
         android:text="@string/motor_speed"
         app:layout_constraintBottom_toBottomOf="@+id/decreaseMotorSpeedButton"
-        app:layout_constraintEnd_toStartOf="@+id/decreaseMotorSpeedButton"
-        app:layout_constraintStart_toEndOf="@+id/increaseMotorSpeedButton"
+        app:layout_constraintEnd_toStartOf="@+id/increaseMotorSpeedButton"
+        app:layout_constraintStart_toEndOf="@+id/decreaseMotorSpeedButton"
         app:layout_constraintTop_toTopOf="@+id/increaseMotorSpeedButton" />
 
     <Button
