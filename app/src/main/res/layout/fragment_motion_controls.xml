@@ -53,6 +53,42 @@
         app:srcCompat="@drawable/ic_arrow_east_light" />
 
     <ImageView
+        android:id="@+id/moveNorthEastImageButton"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:contentDescription="@string/East_pointing_arrow"
+        app:layout_constraintBottom_toBottomOf="@+id/moveNorthImageButton"
+        app:layout_constraintStart_toStartOf="@+id/moveEastImageButton"
+        app:srcCompat="@drawable/ic_arrow_north_east_light" />
+
+    <ImageView
+        android:id="@+id/moveSouthEastImageButton"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:contentDescription="@string/East_pointing_arrow"
+        app:layout_constraintStart_toStartOf="@+id/moveEastImageButton"
+        app:layout_constraintTop_toTopOf="@+id/moveSouthImageButton"
+        app:srcCompat="@drawable/ic_arrow_south_est_light" />
+
+    <ImageView
+        android:id="@+id/moveSouthWestImageButton"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:contentDescription="@string/East_pointing_arrow"
+        app:layout_constraintEnd_toEndOf="@+id/moveWestImageButton"
+        app:layout_constraintTop_toTopOf="@+id/moveSouthImageButton"
+        app:srcCompat="@drawable/ic_arrow_south_west_light" />
+
+    <ImageView
+        android:id="@+id/moveNorthWestImageButton"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:contentDescription="@string/East_pointing_arrow"
+        app:layout_constraintBottom_toBottomOf="@+id/moveNorthImageButton"
+        app:layout_constraintEnd_toEndOf="@+id/moveWestImageButton"
+        app:srcCompat="@drawable/ic_arrow_north_west_light" />
+
+    <ImageView
         android:id="@+id/moveSouthImageButton"
         android:layout_width="50dp"
         android:layout_height="50dp"

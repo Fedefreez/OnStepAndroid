@@ -50,6 +50,11 @@ public class MotionControlsFragment extends Fragment {
             ((ImageView) root.findViewById(R.id.moveWestImageButton)).setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_west, null));
             ((ImageView) root.findViewById(R.id.moveSouthImageButton)).setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_down, null));
 
+            ((ImageView) root.findViewById(R.id.moveNorthEastImageButton)).setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_north_east, null));
+            ((ImageView) root.findViewById(R.id.moveNorthWestImageButton)).setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_north_west, null));
+            ((ImageView) root.findViewById(R.id.moveSouthEastImageButton)).setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_south_est, null));
+            ((ImageView) root.findViewById(R.id.moveSouthWestImageButton)).setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_arrow_south_west, null));
+
         }
 
         currentMotorSpeed = OptionsFragment.getPreferencesInt("motorSpeed", hostFragment.getContext());
@@ -98,7 +103,7 @@ public class MotionControlsFragment extends Fragment {
 
         ImageView southButton = root.findViewById(R.id.moveSouthImageButton);
         southButton.setOnTouchListener((view, motionEvent) -> {
-            if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                 BluetoothFragment.sendData(hostFragment, MOVE_SOUTH.getBytes());
             } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                 BluetoothFragment.sendData(hostFragment, STOP_SOUTH.getBytes());
@@ -106,6 +111,60 @@ public class MotionControlsFragment extends Fragment {
 
             return true;
         });
+
+
+        ImageView northEastButton = root.findViewById(R.id.moveNorthEastImageButton);
+        northEastButton.setOnTouchListener((view, motionEvent) -> {
+            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                BluetoothFragment.sendData(hostFragment, MOVE_NORTH.getBytes());
+                BluetoothFragment.sendData(hostFragment, MOVE_EAST.getBytes());
+            } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                BluetoothFragment.sendData(hostFragment, STOP_NORTH.getBytes());
+                BluetoothFragment.sendData(hostFragment, STOP_EAST.getBytes());
+            }
+
+            return true;
+        });
+
+        ImageView northWestButton = root.findViewById(R.id.moveNorthWestImageButton);
+        northWestButton.setOnTouchListener((view, motionEvent) -> {
+            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                BluetoothFragment.sendData(hostFragment, MOVE_NORTH.getBytes());
+                BluetoothFragment.sendData(hostFragment, MOVE_WEST.getBytes());
+            } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                BluetoothFragment.sendData(hostFragment, STOP_NORTH.getBytes());
+                BluetoothFragment.sendData(hostFragment, STOP_WEST.getBytes());
+            }
+
+            return true;
+        });
+
+        ImageView southEastButton = root.findViewById(R.id.moveSouthEastImageButton);
+        southEastButton.setOnTouchListener((view, motionEvent) -> {
+            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                BluetoothFragment.sendData(hostFragment, MOVE_SOUTH.getBytes());
+                BluetoothFragment.sendData(hostFragment, MOVE_EAST.getBytes());
+            } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                BluetoothFragment.sendData(hostFragment, STOP_SOUTH.getBytes());
+                BluetoothFragment.sendData(hostFragment, STOP_EAST.getBytes());
+            }
+
+            return true;
+        });
+
+        ImageView southWestButton = root.findViewById(R.id.moveSouthWestImageButton);
+        southWestButton.setOnTouchListener((view, motionEvent) -> {
+            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                BluetoothFragment.sendData(hostFragment, MOVE_SOUTH.getBytes());
+                BluetoothFragment.sendData(hostFragment, MOVE_WEST.getBytes());
+            } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                BluetoothFragment.sendData(hostFragment, STOP_SOUTH.getBytes());
+                BluetoothFragment.sendData(hostFragment, STOP_WEST.getBytes());
+            }
+
+            return true;
+        });
+
 
         Button increaseMotorSpeedButton = root.findViewById(R.id.increaseMotorSpeedButton);
         increaseMotorSpeedButton.setOnClickListener((v) -> {
